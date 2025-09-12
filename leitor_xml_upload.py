@@ -1,5 +1,3 @@
-# VERSÃO 01 DA AUTOMAÇÃO PARA UPLOAD DE ARQUIVOS XML
-
 import streamlit as st
 import pandas as pd
 import xmltodict
@@ -17,16 +15,16 @@ def infos_xml(arquivo_xml):
     conteudo_itens = []
     for item in dados_item:
         numero_nf = dados_nf["ide"]["nNF"]
-        natureza_op = dados_nf["ide"]["natOp"]
-        nome_fornecedor = dados_nf["emit"]["xNome"]
+        natureza_op = dados_nf["ide"]["natOp"].upper()
+        nome_fornecedor = dados_nf["emit"]["xNome"].upper()
         uf_fornecedor = dados_nf["emit"]["enderEmit"]["UF"]
-        nome_destinatario = dados_nf["dest"]["xNome"]
+        nome_destinatario = dados_nf["dest"]["xNome"].upper()
         cnpj_destinatario = dados_nf["dest"]["CNPJ"]
         uf_destinatario = dados_nf["dest"]["enderDest"]["UF"]
         vlr_icms_destino = float(dados_nf["total"]["ICMSTot"].get("vICMSUFDest", 0))
 
-        numero_item = item.get("@nItem", "")
-        descricao_item = item["prod"]["xProd"]
+        numero_item = item["@nItem"] if "@nItem" in item else item.get("nItem", "")
+        descricao_item = item["prod"]["xProd"].upper()
         ncm_item = item["prod"]["NCM"]
         cfop_item = item["prod"]["CFOP"]
         
@@ -72,10 +70,7 @@ def infos_xml(arquivo_xml):
 
     return pd.DataFrame(conteudo_itens)
 
-
-# ==========================
 # Streamlit App
-# ==========================
 st.title("📑 Leitor de XML NFe")
 st.write("Faça upload de **um ou mais arquivos XML** da Nota Fiscal para gerar um Excel consolidado.")
 
@@ -111,4 +106,5 @@ if uploaded_files:
         )
 
     except Exception as e:
+
         st.error(f"Erro ao processar os arquivos: {e}")
